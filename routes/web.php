@@ -8,5 +8,5 @@ Route::get('/', function() {
   ]);
 });
 
-// Route::post('/payments/braintree', 'BraintreeController@create');
+Route::post('/payments/braintree', 'BraintreeController@create');
 // Route::get('/payments/braintree/{id}', 'BraintreeController@get');
