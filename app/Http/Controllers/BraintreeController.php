@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
 use App\Order;
+use App\BraintreePayment;
 use App\BraintreeService;
 
 class BraintreeController extends Controller
@@ -17,17 +18,23 @@ class BraintreeController extends Controller
 
   public function create(Request $request)
   {
-    $result = (new BraintreeService())->createTransaction(
-      $request->input('nonce'),
-      $request->input('amount')
-    );
-
     $order = Order::create([
       'customer_name' => $request->input('customerName'),
       'customer_tel'  => $request->input('tel'),
       'currency'      => $request->input('currency'),
       'amount'        => $request->input('amount'),
     ]);
+
+    $payment = BraintreePayment::create(['nonce' => $request->input('nonce')]);
+
+    $payment->orders()->save($order);
+
+    $result = (new BraintreeService())->createTransaction(
+      $request->input('nonce'),
+      $request->input('amount')
+    );
+
+    $payment->fill(['transaction_id' => $result->transaction->id])->save();
 
     return response()->json([
       'transaction_id' => $result->transaction->id,
