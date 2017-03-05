@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "./";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 39);
+/******/ 	return __webpack_require__(__webpack_require__.s = 40);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -11197,7 +11197,7 @@ __webpack_require__(31);
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-Vue.component('payment-form', __webpack_require__(48));
+Vue.component('payment-form', __webpack_require__(35));
 
 var app = new Vue({
   el: '#app'
@@ -12051,12 +12051,161 @@ module.exports = function spread(callback) {
 
 
 /***/ }),
-/* 30 */,
+/* 30 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = {
+  props: ['braintree_auth'],
+  data: function data() {
+    return {
+      braintreeAuthorization: window.Laravel.braintreeAuth,
+      currencyList: ['hkd', 'usd', 'aud', 'eur', 'jpy', 'cny'],
+      payment: {
+        customerName: '',
+        tel: '',
+        currency: 'hkd',
+        amount: 10.00,
+        cardHolderName: '',
+        cardNumber: '',
+        expDate: '',
+        ccv: ''
+      }
+    };
+  },
+
+  methods: {
+    onSubmit: function onSubmit() {
+      this._payByBraintree(this.payment);
+    },
+    _payByBraintree: function _payByBraintree(paymentInfo) {
+      braintree.client.create({
+        authorization: this.braintreeAuthorization
+      }, function (clientErr, clientInstance) {
+        if (clientErr) {
+          // Handle error in client creation
+          console.error('client error', clientErr);
+          return;
+        }
+
+        clientInstance.request({
+          endpoint: 'payment_methods/credit_cards',
+          method: 'post',
+          data: {
+            creditCard: {
+              number: paymentInfo['cardNumber'],
+              expirationDate: paymentInfo['expDate'],
+              cvv: paymentInfo['ccv']
+            }
+          }
+        }, function (err, response) {
+          if (err) {
+            console.error(err);
+            return;
+          }
+
+          Vue.http.post('/payments/braintree', {
+            customerName: paymentInfo['customerName'],
+            tel: paymentInfo['tel'],
+            currency: paymentInfo['currency'],
+            amount: paymentInfo['amount'],
+            nonce: response.creditCards[0].nonce
+          }, {
+            headers: { 'X-CSRF-TOKEN': window.Laravel.csrfToken }
+          }).then(function (response) {
+            console.log(response);
+          }, function (error) {
+            console.error(error);
+          });
+        });
+      });
+    }
+  }
+};
+
+/***/ }),
 /* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__webpack_provided_window_dot_jQuery) {
-window._ = __webpack_require__(33);
+window._ = __webpack_require__(34);
 
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -12074,7 +12223,7 @@ __webpack_require__(32);
  * and simple, leaving you to focus on building your next great project.
  */
 
-window.Vue = __webpack_require__(37);
+window.Vue = __webpack_require__(38);
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -12101,6 +12250,8 @@ window.axios.defaults.headers.common = {
 //     broadcaster: 'pusher',
 //     key: 'your-pusher-key'
 // });
+
+window.creditCardType = __webpack_require__(33);
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
@@ -14489,6 +14640,202 @@ if (typeof jQuery === 'undefined') {
 
 /***/ }),
 /* 33 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var types = {};
+var VISA = 'visa';
+var MASTERCARD = 'master-card';
+var AMERICAN_EXPRESS = 'american-express';
+var DINERS_CLUB = 'diners-club';
+var DISCOVER = 'discover';
+var JCB = 'jcb';
+var UNIONPAY = 'unionpay';
+var MAESTRO = 'maestro';
+var CVV = 'CVV';
+var CID = 'CID';
+var CVC = 'CVC';
+var CVN = 'CVN';
+var testOrder = [
+  VISA,
+  MASTERCARD,
+  AMERICAN_EXPRESS,
+  DINERS_CLUB,
+  DISCOVER,
+  JCB,
+  UNIONPAY,
+  MAESTRO
+];
+
+function clone(x) {
+  var prefixPattern, exactPattern, dupe;
+
+  if (!x) { return null; }
+
+  prefixPattern = x.prefixPattern.source;
+  exactPattern = x.exactPattern.source;
+  dupe = JSON.parse(JSON.stringify(x));
+  dupe.prefixPattern = prefixPattern;
+  dupe.exactPattern = exactPattern;
+
+  return dupe;
+}
+
+types[VISA] = {
+  niceType: 'Visa',
+  type: VISA,
+  prefixPattern: /^4$/,
+  exactPattern: /^4\d*$/,
+  gaps: [4, 8, 12],
+  lengths: [16, 18, 19],
+  code: {
+    name: CVV,
+    size: 3
+  }
+};
+
+types[MASTERCARD] = {
+  niceType: 'MasterCard',
+  type: MASTERCARD,
+  prefixPattern: /^(5|5[1-5]|2|22|222|222[1-9]|2[3-6]|27[0-1]|2720)$/,
+  exactPattern: /^(5[1-5]|222[1-9]|2[3-6]|27[0-1]|2720)\d*$/,
+  gaps: [4, 8, 12],
+  lengths: [16],
+  code: {
+    name: CVC,
+    size: 3
+  }
+};
+
+types[AMERICAN_EXPRESS] = {
+  niceType: 'American Express',
+  type: AMERICAN_EXPRESS,
+  prefixPattern: /^(3|34|37)$/,
+  exactPattern: /^3[47]\d*$/,
+  isAmex: true,
+  gaps: [4, 10],
+  lengths: [15],
+  code: {
+    name: CID,
+    size: 4
+  }
+};
+
+types[DINERS_CLUB] = {
+  niceType: 'Diners Club',
+  type: DINERS_CLUB,
+  prefixPattern: /^(3|3[0689]|30[0-5])$/,
+  exactPattern: /^3(0[0-5]|[689])\d*$/,
+  gaps: [4, 10],
+  lengths: [14],
+  code: {
+    name: CVV,
+    size: 3
+  }
+};
+
+types[DISCOVER] = {
+  niceType: 'Discover',
+  type: DISCOVER,
+  prefixPattern: /^(6|60|601|6011|65|64|64[4-9])$/,
+  exactPattern: /^(6011|65|64[4-9])\d*$/,
+  gaps: [4, 8, 12],
+  lengths: [16, 19],
+  code: {
+    name: CID,
+    size: 3
+  }
+};
+
+types[JCB] = {
+  niceType: 'JCB',
+  type: JCB,
+  prefixPattern: /^(2|21|213|2131|1|18|180|1800|3|35)$/,
+  exactPattern: /^(2131|1800|35)\d*$/,
+  gaps: [4, 8, 12],
+  lengths: [16],
+  code: {
+    name: CVV,
+    size: 3
+  }
+};
+
+types[UNIONPAY] = {
+  niceType: 'UnionPay',
+  type: UNIONPAY,
+  prefixPattern: /^(6|62)$/,
+  exactPattern: /^62\d*$/,
+  gaps: [4, 8, 12],
+  lengths: [16, 17, 18, 19],
+  code: {
+    name: CVN,
+    size: 3
+  }
+};
+
+types[MAESTRO] = {
+  niceType: 'Maestro',
+  type: MAESTRO,
+  prefixPattern: /^(5|5[06-9]|6\d*)$/,
+  exactPattern: /^5[06-9]\d*$/,
+  gaps: [4, 8, 12],
+  lengths: [12, 13, 14, 15, 16, 17, 18, 19],
+  code: {
+    name: CVC,
+    size: 3
+  }
+};
+
+function creditCardType(cardNumber) {
+  var type, value, i;
+  var prefixResults = [];
+  var exactResults = [];
+
+  if (!(typeof cardNumber === 'string' || cardNumber instanceof String)) {
+    return [];
+  }
+
+  for (i = 0; i < testOrder.length; i++) {
+    type = testOrder[i];
+    value = types[type];
+
+    if (cardNumber.length === 0) {
+      prefixResults.push(clone(value));
+      continue;
+    }
+
+    if (value.exactPattern.test(cardNumber)) {
+      exactResults.push(clone(value));
+    } else if (value.prefixPattern.test(cardNumber)) {
+      prefixResults.push(clone(value));
+    }
+  }
+
+  return exactResults.length ? exactResults : prefixResults;
+}
+
+creditCardType.getTypeInfo = function (type) {
+  return clone(types[type]);
+};
+
+creditCardType.types = {
+  VISA: VISA,
+  MASTERCARD: MASTERCARD,
+  AMERICAN_EXPRESS: AMERICAN_EXPRESS,
+  DINERS_CLUB: DINERS_CLUB,
+  DISCOVER: DISCOVER,
+  JCB: JCB,
+  UNIONPAY: UNIONPAY,
+  MAESTRO: MAESTRO
+};
+
+module.exports = creditCardType;
+
+
+/***/ }),
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -31577,11 +31924,44 @@ if (typeof jQuery === 'undefined') {
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(38)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(9), __webpack_require__(39)(module)))
 
 /***/ }),
-/* 34 */,
 /* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(36)(
+  /* script */
+  __webpack_require__(30),
+  /* template */
+  __webpack_require__(37),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "/Users/victor/Projects/WeMedia01/coffee-shop/resources/assets/js/components/payment-form.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] payment-form.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-f7e0c8ec", Component.options)
+  } else {
+    hotAPI.reload("data-v-f7e0c8ec", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 36 */
 /***/ (function(module, exports) {
 
 module.exports = function normalizeComponent (
@@ -31634,8 +32014,378 @@ module.exports = function normalizeComponent (
 
 
 /***/ }),
-/* 36 */,
 /* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "row"
+  }, [_c('div', {
+    staticClass: "col-md-6 col-md-offset-3"
+  }, [_c('form', {
+    staticClass: "form-horizontal",
+    on: {
+      "submit": function($event) {
+        $event.preventDefault();
+        _vm.onSubmit($event)
+      }
+    }
+  }, [_vm._m(0), _vm._v(" "), _c('div', {
+    staticClass: "form-group"
+  }, [_c('label', {
+    staticClass: "col-sm-4 control-label",
+    attrs: {
+      "for": "name"
+    }
+  }, [_vm._v("Name")]), _vm._v(" "), _c('div', {
+    staticClass: "col-sm-8"
+  }, [_c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.payment['customerName']),
+      expression: "payment['customerName']"
+    }],
+    staticClass: "form-control",
+    attrs: {
+      "type": "text",
+      "id": "name",
+      "name": "name",
+      "placeholder": "Customer Name",
+      "required": ""
+    },
+    domProps: {
+      "value": (_vm.payment['customerName'])
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        var $$exp = _vm.payment,
+          $$idx = 'customerName';
+        if (!Array.isArray($$exp)) {
+          _vm.payment['customerName'] = $event.target.value
+        } else {
+          $$exp.splice($$idx, 1, $event.target.value)
+        }
+      }
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "form-group"
+  }, [_c('label', {
+    staticClass: "col-sm-4 control-label",
+    attrs: {
+      "for": "tel"
+    }
+  }, [_vm._v("Tel")]), _vm._v(" "), _c('div', {
+    staticClass: "col-sm-8"
+  }, [_c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.payment['tel']),
+      expression: "payment['tel']"
+    }],
+    staticClass: "form-control",
+    attrs: {
+      "type": "text",
+      "id": "tel",
+      "name": "tel",
+      "placeholder": "Phone Number",
+      "maxlength": "8",
+      "required": ""
+    },
+    domProps: {
+      "value": (_vm.payment['tel'])
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        var $$exp = _vm.payment,
+          $$idx = 'tel';
+        if (!Array.isArray($$exp)) {
+          _vm.payment['tel'] = $event.target.value
+        } else {
+          $$exp.splice($$idx, 1, $event.target.value)
+        }
+      }
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "form-group"
+  }, [_c('label', {
+    staticClass: "col-sm-4 control-label",
+    attrs: {
+      "for": "currency"
+    }
+  }, [_vm._v("Currency")]), _vm._v(" "), _c('div', {
+    staticClass: "col-sm-8"
+  }, [_c('select', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.payment['currency']),
+      expression: "payment['currency']"
+    }],
+    staticClass: "form-control",
+    attrs: {
+      "id": "currency",
+      "name": "currency"
+    },
+    on: {
+      "change": function($event) {
+        var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
+          return o.selected
+        }).map(function(o) {
+          var val = "_value" in o ? o._value : o.value;
+          return val
+        });
+        var $$exp = _vm.payment,
+          $$idx = 'currency';
+        if (!Array.isArray($$exp)) {
+          _vm.payment['currency'] = $event.target.multiple ? $$selectedVal : $$selectedVal[0]
+        } else {
+          $$exp.splice($$idx, 1, $event.target.multiple ? $$selectedVal : $$selectedVal[0])
+        }
+      }
+    }
+  }, _vm._l((_vm.currencyList), function(c) {
+    return _c('option', {
+      domProps: {
+        "value": c
+      }
+    }, [_vm._v(_vm._s(c.toUpperCase()))])
+  }))])]), _vm._v(" "), _c('div', {
+    staticClass: "form-group"
+  }, [_c('label', {
+    staticClass: "col-sm-4 control-label",
+    attrs: {
+      "for": "amount"
+    }
+  }, [_vm._v("Amount")]), _vm._v(" "), _c('div', {
+    staticClass: "col-sm-8"
+  }, [_c('div', {
+    staticClass: "input-group"
+  }, [_c('span', {
+    staticClass: "input-group-addon"
+  }, [_vm._v("$")]), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.payment['amount']),
+      expression: "payment['amount']"
+    }],
+    staticClass: "form-control",
+    attrs: {
+      "type": "number",
+      "min": "0",
+      "id": "amount",
+      "name": "amount",
+      "required": ""
+    },
+    domProps: {
+      "value": (_vm.payment['amount'])
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        var $$exp = _vm.payment,
+          $$idx = 'amount';
+        if (!Array.isArray($$exp)) {
+          _vm.payment['amount'] = $event.target.value
+        } else {
+          $$exp.splice($$idx, 1, $event.target.value)
+        }
+      },
+      "blur": function($event) {
+        _vm.$forceUpdate()
+      }
+    }
+  })])])]), _vm._v(" "), _vm._m(1), _vm._v(" "), _c('div', {
+    staticClass: "form-group"
+  }, [_c('label', {
+    staticClass: "col-sm-4 control-label",
+    attrs: {
+      "for": "card-holder-name"
+    }
+  }, [_vm._v("Card holder name")]), _vm._v(" "), _c('div', {
+    staticClass: "col-sm-8"
+  }, [_c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.payment['cardHolderName']),
+      expression: "payment['cardHolderName']"
+    }],
+    staticClass: "form-control",
+    attrs: {
+      "type": "text",
+      "id": "card-holder-name",
+      "name": "card-holder-name",
+      "placeholder": "Card holder name",
+      "required": ""
+    },
+    domProps: {
+      "value": (_vm.payment['cardHolderName'])
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        var $$exp = _vm.payment,
+          $$idx = 'cardHolderName';
+        if (!Array.isArray($$exp)) {
+          _vm.payment['cardHolderName'] = $event.target.value
+        } else {
+          $$exp.splice($$idx, 1, $event.target.value)
+        }
+      }
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "form-group"
+  }, [_c('label', {
+    staticClass: "col-sm-4 control-label",
+    attrs: {
+      "for": "card-number"
+    }
+  }, [_vm._v("Card number")]), _vm._v(" "), _c('div', {
+    staticClass: "col-sm-8"
+  }, [_c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.payment['cardNumber']),
+      expression: "payment['cardNumber']"
+    }],
+    staticClass: "form-control",
+    attrs: {
+      "type": "text",
+      "id": "card-number",
+      "name": "card-number",
+      "placeholder": "4111 1111 1111 1111",
+      "maxlength": "16",
+      "required": ""
+    },
+    domProps: {
+      "value": (_vm.payment['cardNumber'])
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        var $$exp = _vm.payment,
+          $$idx = 'cardNumber';
+        if (!Array.isArray($$exp)) {
+          _vm.payment['cardNumber'] = $event.target.value
+        } else {
+          $$exp.splice($$idx, 1, $event.target.value)
+        }
+      }
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "form-group"
+  }, [_c('label', {
+    staticClass: "col-sm-4 control-label",
+    attrs: {
+      "for": "exp-date"
+    }
+  }, [_vm._v("Expiration")]), _vm._v(" "), _c('div', {
+    staticClass: "col-sm-8"
+  }, [_c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.payment['expDate']),
+      expression: "payment['expDate']"
+    }],
+    staticClass: "form-control",
+    attrs: {
+      "type": "text",
+      "id": "exp-date",
+      "name": "exp-date",
+      "placeholder": "MM/YYYY",
+      "maxlength": "7",
+      "required": ""
+    },
+    domProps: {
+      "value": (_vm.payment['expDate'])
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        var $$exp = _vm.payment,
+          $$idx = 'expDate';
+        if (!Array.isArray($$exp)) {
+          _vm.payment['expDate'] = $event.target.value
+        } else {
+          $$exp.splice($$idx, 1, $event.target.value)
+        }
+      }
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "form-group"
+  }, [_c('label', {
+    staticClass: "col-sm-4 control-label",
+    attrs: {
+      "for": "ccv"
+    }
+  }, [_vm._v("CCV")]), _vm._v(" "), _c('div', {
+    staticClass: "col-sm-8"
+  }, [_c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.payment['ccv']),
+      expression: "payment['ccv']"
+    }],
+    staticClass: "form-control",
+    attrs: {
+      "type": "text",
+      "id": "ccv",
+      "name": "ccv",
+      "placeholder": "CCV",
+      "maxlength": "4",
+      "required": ""
+    },
+    domProps: {
+      "value": (_vm.payment['ccv'])
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        var $$exp = _vm.payment,
+          $$idx = 'ccv';
+        if (!Array.isArray($$exp)) {
+          _vm.payment['ccv'] = $event.target.value
+        } else {
+          $$exp.splice($$idx, 1, $event.target.value)
+        }
+      }
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "form-group"
+  }, [_c('div', {
+    staticClass: "col-sm-offset-4 col-sm-8"
+  }, [_c('button', {
+    staticClass: "btn btn-primary",
+    attrs: {
+      "type": "submit"
+    },
+    on: {
+      "click": _vm.onSubmit
+    }
+  }, [_vm._v("Submit")])])])])])])
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('h3', [_c('u', [_vm._v("Order")])])
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('h3', [_c('u', [_vm._v("Payment")])])
+}]}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-f7e0c8ec", module.exports)
+  }
+}
+
+/***/ }),
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40820,7 +41570,7 @@ module.exports = Vue$3;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3), __webpack_require__(9)))
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -40848,575 +41598,12 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(10);
 module.exports = __webpack_require__(11);
 
-
-/***/ }),
-/* 40 */,
-/* 41 */,
-/* 42 */,
-/* 43 */,
-/* 44 */,
-/* 45 */,
-/* 46 */,
-/* 47 */,
-/* 48 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Component = __webpack_require__(35)(
-  /* script */
-  __webpack_require__(50),
-  /* template */
-  __webpack_require__(49),
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-Component.options.__file = "/Users/victor/Projects/WeMedia01/coffee-shop/resources/assets/js/components/payment-form.vue"
-if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] payment-form.vue: functional components are not supported with templates, they should use render functions.")}
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-f7e0c8ec", Component.options)
-  } else {
-    hotAPI.reload("data-v-f7e0c8ec", Component.options)
-  }
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 49 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "row"
-  }, [_c('div', {
-    staticClass: "col-md-6 col-md-offset-3"
-  }, [_c('form', {
-    staticClass: "form-horizontal",
-    on: {
-      "submit": function($event) {
-        $event.preventDefault();
-        _vm.onSubmit($event)
-      }
-    }
-  }, [_vm._m(0), _vm._v(" "), _c('div', {
-    staticClass: "form-group"
-  }, [_c('label', {
-    staticClass: "col-sm-4 control-label",
-    attrs: {
-      "for": "name"
-    }
-  }, [_vm._v("Name")]), _vm._v(" "), _c('div', {
-    staticClass: "col-sm-8"
-  }, [_c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.payment['customerName']),
-      expression: "payment['customerName']"
-    }],
-    staticClass: "form-control",
-    attrs: {
-      "type": "text",
-      "id": "name",
-      "name": "name",
-      "placeholder": "Customer Name",
-      "required": ""
-    },
-    domProps: {
-      "value": (_vm.payment['customerName'])
-    },
-    on: {
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        var $$exp = _vm.payment,
-          $$idx = 'customerName';
-        if (!Array.isArray($$exp)) {
-          _vm.payment['customerName'] = $event.target.value
-        } else {
-          $$exp.splice($$idx, 1, $event.target.value)
-        }
-      }
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "form-group"
-  }, [_c('label', {
-    staticClass: "col-sm-4 control-label",
-    attrs: {
-      "for": "tel"
-    }
-  }, [_vm._v("Tel")]), _vm._v(" "), _c('div', {
-    staticClass: "col-sm-8"
-  }, [_c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.payment['tel']),
-      expression: "payment['tel']"
-    }],
-    staticClass: "form-control",
-    attrs: {
-      "type": "text",
-      "id": "tel",
-      "name": "tel",
-      "placeholder": "Phone Number",
-      "maxlength": "8",
-      "required": ""
-    },
-    domProps: {
-      "value": (_vm.payment['tel'])
-    },
-    on: {
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        var $$exp = _vm.payment,
-          $$idx = 'tel';
-        if (!Array.isArray($$exp)) {
-          _vm.payment['tel'] = $event.target.value
-        } else {
-          $$exp.splice($$idx, 1, $event.target.value)
-        }
-      }
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "form-group"
-  }, [_c('label', {
-    staticClass: "col-sm-4 control-label",
-    attrs: {
-      "for": "currency"
-    }
-  }, [_vm._v("Currency")]), _vm._v(" "), _c('div', {
-    staticClass: "col-sm-8"
-  }, [_c('select', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.payment['currency']),
-      expression: "payment['currency']"
-    }],
-    staticClass: "form-control",
-    attrs: {
-      "id": "currency",
-      "name": "currency"
-    },
-    on: {
-      "change": function($event) {
-        var $$selectedVal = Array.prototype.filter.call($event.target.options, function(o) {
-          return o.selected
-        }).map(function(o) {
-          var val = "_value" in o ? o._value : o.value;
-          return val
-        });
-        var $$exp = _vm.payment,
-          $$idx = 'currency';
-        if (!Array.isArray($$exp)) {
-          _vm.payment['currency'] = $event.target.multiple ? $$selectedVal : $$selectedVal[0]
-        } else {
-          $$exp.splice($$idx, 1, $event.target.multiple ? $$selectedVal : $$selectedVal[0])
-        }
-      }
-    }
-  }, _vm._l((_vm.currencyList), function(c) {
-    return _c('option', {
-      domProps: {
-        "value": c
-      }
-    }, [_vm._v(_vm._s(c.toUpperCase()))])
-  }))])]), _vm._v(" "), _c('div', {
-    staticClass: "form-group"
-  }, [_c('label', {
-    staticClass: "col-sm-4 control-label",
-    attrs: {
-      "for": "amount"
-    }
-  }, [_vm._v("Amount")]), _vm._v(" "), _c('div', {
-    staticClass: "col-sm-8"
-  }, [_c('div', {
-    staticClass: "input-group"
-  }, [_c('span', {
-    staticClass: "input-group-addon"
-  }, [_vm._v("$")]), _vm._v(" "), _c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.payment['amount']),
-      expression: "payment['amount']"
-    }],
-    staticClass: "form-control",
-    attrs: {
-      "type": "number",
-      "min": "0",
-      "id": "amount",
-      "name": "amount",
-      "required": ""
-    },
-    domProps: {
-      "value": (_vm.payment['amount'])
-    },
-    on: {
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        var $$exp = _vm.payment,
-          $$idx = 'amount';
-        if (!Array.isArray($$exp)) {
-          _vm.payment['amount'] = $event.target.value
-        } else {
-          $$exp.splice($$idx, 1, $event.target.value)
-        }
-      },
-      "blur": function($event) {
-        _vm.$forceUpdate()
-      }
-    }
-  })])])]), _vm._v(" "), _vm._m(1), _vm._v(" "), _c('div', {
-    staticClass: "form-group"
-  }, [_c('label', {
-    staticClass: "col-sm-4 control-label",
-    attrs: {
-      "for": "card-holder-name"
-    }
-  }, [_vm._v("Card holder name")]), _vm._v(" "), _c('div', {
-    staticClass: "col-sm-8"
-  }, [_c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.payment['cardHolderName']),
-      expression: "payment['cardHolderName']"
-    }],
-    staticClass: "form-control",
-    attrs: {
-      "type": "text",
-      "id": "card-holder-name",
-      "name": "card-holder-name",
-      "placeholder": "Card holder name",
-      "required": ""
-    },
-    domProps: {
-      "value": (_vm.payment['cardHolderName'])
-    },
-    on: {
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        var $$exp = _vm.payment,
-          $$idx = 'cardHolderName';
-        if (!Array.isArray($$exp)) {
-          _vm.payment['cardHolderName'] = $event.target.value
-        } else {
-          $$exp.splice($$idx, 1, $event.target.value)
-        }
-      }
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "form-group"
-  }, [_c('label', {
-    staticClass: "col-sm-4 control-label",
-    attrs: {
-      "for": "card-number"
-    }
-  }, [_vm._v("Card number")]), _vm._v(" "), _c('div', {
-    staticClass: "col-sm-8"
-  }, [_c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.payment['cardNumber']),
-      expression: "payment['cardNumber']"
-    }],
-    staticClass: "form-control",
-    attrs: {
-      "type": "text",
-      "id": "card-number",
-      "name": "card-number",
-      "placeholder": "4111 1111 1111 1111",
-      "maxlength": "16",
-      "required": ""
-    },
-    domProps: {
-      "value": (_vm.payment['cardNumber'])
-    },
-    on: {
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        var $$exp = _vm.payment,
-          $$idx = 'cardNumber';
-        if (!Array.isArray($$exp)) {
-          _vm.payment['cardNumber'] = $event.target.value
-        } else {
-          $$exp.splice($$idx, 1, $event.target.value)
-        }
-      }
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "form-group"
-  }, [_c('label', {
-    staticClass: "col-sm-4 control-label",
-    attrs: {
-      "for": "exp-date"
-    }
-  }, [_vm._v("Expiration")]), _vm._v(" "), _c('div', {
-    staticClass: "col-sm-8"
-  }, [_c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.payment['expDate']),
-      expression: "payment['expDate']"
-    }],
-    staticClass: "form-control",
-    attrs: {
-      "type": "text",
-      "id": "exp-date",
-      "name": "exp-date",
-      "placeholder": "MM/YYYY",
-      "maxlength": "7",
-      "required": ""
-    },
-    domProps: {
-      "value": (_vm.payment['expDate'])
-    },
-    on: {
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        var $$exp = _vm.payment,
-          $$idx = 'expDate';
-        if (!Array.isArray($$exp)) {
-          _vm.payment['expDate'] = $event.target.value
-        } else {
-          $$exp.splice($$idx, 1, $event.target.value)
-        }
-      }
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "form-group"
-  }, [_c('label', {
-    staticClass: "col-sm-4 control-label",
-    attrs: {
-      "for": "ccv"
-    }
-  }, [_vm._v("CCV")]), _vm._v(" "), _c('div', {
-    staticClass: "col-sm-8"
-  }, [_c('input', {
-    directives: [{
-      name: "model",
-      rawName: "v-model",
-      value: (_vm.payment['ccv']),
-      expression: "payment['ccv']"
-    }],
-    staticClass: "form-control",
-    attrs: {
-      "type": "text",
-      "id": "ccv",
-      "name": "ccv",
-      "placeholder": "CCV",
-      "maxlength": "4",
-      "required": ""
-    },
-    domProps: {
-      "value": (_vm.payment['ccv'])
-    },
-    on: {
-      "input": function($event) {
-        if ($event.target.composing) { return; }
-        var $$exp = _vm.payment,
-          $$idx = 'ccv';
-        if (!Array.isArray($$exp)) {
-          _vm.payment['ccv'] = $event.target.value
-        } else {
-          $$exp.splice($$idx, 1, $event.target.value)
-        }
-      }
-    }
-  })])]), _vm._v(" "), _c('div', {
-    staticClass: "form-group"
-  }, [_c('div', {
-    staticClass: "col-sm-offset-4 col-sm-8"
-  }, [_c('button', {
-    staticClass: "btn btn-primary",
-    attrs: {
-      "type": "submit"
-    },
-    on: {
-      "click": _vm.onSubmit
-    }
-  }, [_vm._v("Submit")])])])])])])
-},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('h3', [_c('u', [_vm._v("Order")])])
-},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('h3', [_c('u', [_vm._v("Payment")])])
-}]}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-f7e0c8ec", module.exports)
-  }
-}
-
-/***/ }),
-/* 50 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-/* harmony default export */ __webpack_exports__["default"] = {
-  props: ['braintree_auth'],
-  data: function data() {
-    return {
-      braintreeAuthorization: window.Laravel.braintreeAuth,
-      currencyList: ['hkd', 'usd', 'aud', 'eur', 'jpy', 'cny'],
-      payment: {
-        customerName: '',
-        tel: '',
-        currency: 'hkd',
-        amount: 10.00,
-        cardHolderName: '',
-        cardNumber: '',
-        expDate: '',
-        ccv: ''
-      }
-    };
-  },
-
-  methods: {
-    onSubmit: function onSubmit() {
-      this._payByBraintree(this.payment);
-    },
-    _payByBraintree: function _payByBraintree(paymentInfo) {
-      braintree.client.create({
-        authorization: this.braintreeAuthorization
-      }, function (clientErr, clientInstance) {
-        if (clientErr) {
-          // Handle error in client creation
-          console.error('client error', clientErr);
-          return;
-        }
-
-        clientInstance.request({
-          endpoint: 'payment_methods/credit_cards',
-          method: 'post',
-          data: {
-            creditCard: {
-              number: paymentInfo['cardNumber'],
-              expirationDate: paymentInfo['expDate'],
-              cvv: paymentInfo['ccv']
-            }
-          }
-        }, function (err, response) {
-          if (err) {
-            console.error(err);
-            return;
-          }
-
-          Vue.http.post('/payments/braintree', {
-            customerName: paymentInfo['customerName'],
-            tel: paymentInfo['tel'],
-            currency: paymentInfo['currency'],
-            amount: paymentInfo['amount'],
-            nonce: response.creditCards[0].nonce
-          }, {
-            headers: { 'X-CSRF-TOKEN': window.Laravel.csrfToken }
-          }).then(function (response) {
-            console.log(response);
-          }, function (error) {
-            console.error(error);
-          });
-        });
-      });
-    }
-  }
-};
 
 /***/ })
 /******/ ]);

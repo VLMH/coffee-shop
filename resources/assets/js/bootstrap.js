@@ -44,3 +44,5 @@ window.axios.defaults.headers.common = {
 //     broadcaster: 'pusher',
 //     key: 'your-pusher-key'
 // });
+
+window.creditCardType = require('credit-card-type');
