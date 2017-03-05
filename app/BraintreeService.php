@@ -23,10 +23,10 @@ class BraintreeService
     return \Braintree\Transaction::find($id);
   }
 
-  public function createTransaction($nonce)
+  public function createTransaction($nonce, $amount)
   {
     return \Braintree\Transaction::sale([
-      'amount' => '10.00',
+      'amount' => $amount,
       'paymentMethodNonce' => $nonce,
       'options' => [
         'submitForSettlement' => true
