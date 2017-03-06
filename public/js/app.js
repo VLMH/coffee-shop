@@ -12055,7 +12055,24 @@ module.exports = function spread(callback) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* WEBPACK VAR INJECTION */(function($) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -12147,15 +12164,40 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         cardNumber: '',
         expDate: '',
         ccv: ''
-      }
+      },
+      msgModalContent: { title: '', body: '' }
     };
   },
 
   methods: {
     onSubmit: function onSubmit() {
-      this._payByBraintree(this.payment);
+      var cardType = window.creditCardType(this.payment.cardNumber)[0];
+      var paypalCurrencyList = ['usd', 'eur', 'aud'];
+
+      if (typeof cardType == 'undefined') {
+        console.error('unknown credit card type');
+        this.msgModalContent = { title: 'Error Message', body: 'Unknown credit card type' };
+        $('#msgModal').modal();
+        return;
+      }
+
+      if (cardType.type == 'american-express' && this.payment.currency != 'usd') {
+        console.error('AMEX is only for USD');
+        this.msgModalContent = { title: 'Error Message', body: 'AMEX is only for USD' };
+        $('#msgModal').modal();
+        return;
+      }
+
+      if (cardType.type == 'american-express' || paypalCurrencyList.includes(this.payment.currency)) {
+        console.log('paypal');
+      } else {
+        this._payByBraintree();
+      }
     },
-    _payByBraintree: function _payByBraintree(paymentInfo) {
+    _payByBraintree: function _payByBraintree() {
+      var self = this;
+      var paymentInfo = this.payment;
+
       braintree.client.create({
         authorization: this.braintreeAuthorization
       }, function (clientErr, clientInstance) {
@@ -12191,6 +12233,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             headers: { 'X-CSRF-TOKEN': window.Laravel.csrfToken }
           }).then(function (response) {
             console.log(response);
+            self.msgModalContent = {
+              title: 'Payment',
+              body: 'Payment reference code: ' + response.body['transaction_id']
+            };
+            $('#msgModal').modal();
           }, function (error) {
             console.error(error);
           });
@@ -12199,6 +12246,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     }
   }
 };
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(2)))
 
 /***/ }),
 /* 31 */
@@ -32358,7 +32406,33 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
         }
       }
     }
-  })])]), _vm._v(" "), _c('div', {
+  })])]), _vm._v(" "), _vm._m(2)])]), _vm._v(" "), _c('div', {
+    staticClass: "modal fade",
+    attrs: {
+      "id": "msgModal",
+      "tabindex": "-1",
+      "role": "dialog"
+    }
+  }, [_c('div', {
+    staticClass: "modal-dialog",
+    attrs: {
+      "role": "document"
+    }
+  }, [_c('div', {
+    staticClass: "modal-content"
+  }, [_c('div', {
+    staticClass: "modal-header"
+  }, [_vm._m(3), _vm._v(" "), _c('h4', {
+    staticClass: "modal-title"
+  }, [_vm._v(_vm._s(_vm.msgModalContent['title']))])]), _vm._v(" "), _c('div', {
+    staticClass: "modal-body"
+  }, [_c('p', [_vm._v(_vm._s(_vm.msgModalContent['body']))])]), _vm._v(" "), _vm._m(4)])])])])
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('h3', [_c('u', [_vm._v("Order")])])
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('h3', [_c('u', [_vm._v("Payment")])])
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
     staticClass: "form-group"
   }, [_c('div', {
     staticClass: "col-sm-offset-4 col-sm-8"
@@ -32366,15 +32440,31 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "btn btn-primary",
     attrs: {
       "type": "submit"
-    },
-    on: {
-      "click": _vm.onSubmit
     }
-  }, [_vm._v("Submit")])])])])])])
-},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('h3', [_c('u', [_vm._v("Order")])])
+  }, [_vm._v("Submit")])])])
 },function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('h3', [_c('u', [_vm._v("Payment")])])
+  return _c('button', {
+    staticClass: "close",
+    attrs: {
+      "type": "button",
+      "data-dismiss": "modal",
+      "aria-label": "Close"
+    }
+  }, [_c('span', {
+    attrs: {
+      "aria-hidden": "true"
+    }
+  }, [_vm._v("×")])])
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "modal-footer"
+  }, [_c('button', {
+    staticClass: "btn btn-default",
+    attrs: {
+      "type": "button",
+      "data-dismiss": "modal"
+    }
+  }, [_vm._v("Close")])])
 }]}
 module.exports.render._withStripped = true
 if (false) {

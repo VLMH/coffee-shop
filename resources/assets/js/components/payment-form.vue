@@ -64,12 +64,29 @@
 
         <div class="form-group">
           <div class="col-sm-offset-4 col-sm-8">
-            <button type="submit" class="btn btn-primary" v-on:click="onSubmit">Submit</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </div>
 
       </form>
     </div>
+
+    <div id="msgModal" class="modal fade" tabindex="-1" role="dialog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">{{ msgModalContent['title'] }}</h4>
+          </div>
+          <div class="modal-body">
+            <p>{{ msgModalContent['body'] }}</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
   </div>
 </template>
 
@@ -89,14 +106,39 @@
           cardNumber: '',
           expDate: '',
           ccv: '',
-        }
+        },
+        msgModalContent: {title: '', body: ''},
       }
     },
     methods: {
       onSubmit: function() {
-        this._payByBraintree(this.payment);
+        var cardType = window.creditCardType(this.payment.cardNumber)[0];
+        var paypalCurrencyList = ['usd', 'eur', 'aud'];
+
+        if (typeof cardType == 'undefined') {
+          console.error('unknown credit card type');
+          this.msgModalContent = {title: 'Error Message', body: 'Unknown credit card type'};
+          $('#msgModal').modal();
+          return;
+        }
+
+        if (cardType.type == 'american-express' && this.payment.currency != 'usd') {
+          console.error('AMEX is only for USD');
+          this.msgModalContent = {title: 'Error Message', body: 'AMEX is only for USD'};
+          $('#msgModal').modal();
+          return;
+        }
+
+        if (cardType.type == 'american-express' || paypalCurrencyList.includes(this.payment.currency)) {
+          console.log('paypal');
+        } else {
+          this._payByBraintree();
+        }
       },
-      _payByBraintree: function(paymentInfo) {
+      _payByBraintree: function() {
+        var self = this;
+        var paymentInfo = this.payment;
+
         braintree.client.create({
           authorization: this.braintreeAuthorization
         }, function (clientErr, clientInstance) {
@@ -133,6 +175,11 @@
             })
               .then((response) => {
                 console.log(response);
+                self.msgModalContent = {
+                  title: 'Payment',
+                  body: 'Payment reference code: ' + response.body['transaction_id']
+                };
+                $('#msgModal').modal();
               }, (error) => {
                 console.error(error);
               });
