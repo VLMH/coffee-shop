@@ -130,17 +130,17 @@
         }
 
         if (cardType.type == 'american-express' || paypalCurrencyList.includes(this.payment.currency)) {
-          console.log('paypal');
+          this._payByPaypal(cardType);
         } else {
           this._payByBraintree();
         }
       },
       _payByBraintree: function() {
         var self = this;
-        var paymentInfo = this.payment;
+        var paymentInfo = self.payment;
 
         braintree.client.create({
-          authorization: this.braintreeAuthorization
+          authorization: self.braintreeAuthorization
         }, function (clientErr, clientInstance) {
           if (clientErr) {
             // Handle error in client creation
@@ -186,7 +186,41 @@
 
           });
         });
-      }
+      },
+      _payByPaypal: function(cardType) {
+        var self = this;
+        var paymentInfo = self.payment;
+        var expToken = paymentInfo['expDate'].split('/');
+        var nameToken = paymentInfo['cardHolderName'].split(' ');
+        var lastName = nameToken.length < 2 ? '' : nameToken.pop();
+        var firstName = nameToken.length == 0 ? '' : nameToken.join(' ');
+
+        Vue.http.post('/payments/paypal', {
+          customerName: paymentInfo['customerName'],
+          tel: paymentInfo['tel'],
+          currency: paymentInfo['currency'],
+          amount: paymentInfo['amount'],
+          cardType: cardType.type,
+          cardNumber: paymentInfo['cardNumber'],
+          expMonth: expToken[0],
+          expYear: expToken[1],
+          cvv: paymentInfo['ccv'],
+          firstName: firstName,
+          lastName: lastName
+        }, {
+          headers: {'X-CSRF-TOKEN': window.Laravel.csrfToken}
+        })
+          .then((response) => {
+            console.log(response);
+            self.msgModalContent = {
+              title: 'Payment',
+              body: 'Payment reference code: ' + response.body['transaction_id']
+            };
+            $('#msgModal').modal();
+          }, (error) => {
+            console.error(error);
+          })
+      },
     }
   }
 </script>
