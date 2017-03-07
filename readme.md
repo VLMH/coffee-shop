@@ -30,6 +30,10 @@
    - `coffee-shop.app 192.168.10.10`
 11. Go to app http://coffee-shop.app
 
+# Public link
+- Create payment http://coffee-shop.app
+- Search payment http://coffee-shop.app/payments
+
 # PayPal test credit card
 - AMEX `347149799668709` 04/2022
 - VISA `4032035073037590` 04/2022
