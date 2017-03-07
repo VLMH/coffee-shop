@@ -49,7 +49,7 @@ class PaypalController extends Controller
     (new RedisPaymentCache())->set($order);
 
     return response()->json([
-      'transaction_id' => $ppPayment->getId(),
+      'payment_reference_code' => $ppPayment->getId(),
       'order_id' => $order->id,
     ]);
   }
