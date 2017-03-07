@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\PaypalService;
 use App\PaypalPayment;
 use App\Order;
+use App\RedisPaymentCache;
 
 class PaypalController extends Controller
 {
@@ -45,6 +46,8 @@ class PaypalController extends Controller
 
     $payment->fill(['transaction_id' => $ppPayment->getId()])->save();
     $order->fill(['payment_reference_code' => $ppPayment->getId()])->save();
+
+    (new RedisPaymentCache())->set($order);
 
     return response()->json([
       'transaction_id' => $ppPayment->getId(),

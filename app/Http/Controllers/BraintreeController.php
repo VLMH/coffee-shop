@@ -38,6 +38,8 @@ class BraintreeController extends Controller
     $payment->fill(['transaction_id' => $result->transaction->id])->save();
     $order->fill(['payment_reference_code' => $result->transaction->id])->save();
 
+    (new RedisPaymentCache())->set($order);
+
     return response()->json([
       'transaction_id' => $result->transaction->id,
       'order_id' => $order->id,
