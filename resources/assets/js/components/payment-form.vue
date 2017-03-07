@@ -177,7 +177,7 @@
                 console.log(response);
                 self.msgModalContent = {
                   title: 'Payment',
-                  body: 'Payment reference code: ' + response.body['transaction_id']
+                  body: 'Payment reference code: ' + response.body['payment_reference_code']
                 };
                 $('#msgModal').modal();
               }, (error) => {

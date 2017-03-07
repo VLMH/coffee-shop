@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Order;
 use App\BraintreePayment;
 use App\BraintreeService;
+use App\RedisPaymentCache;
 
 class BraintreeController extends Controller
 {
