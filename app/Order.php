@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Order extends Model
 {
@@ -10,8 +11,7 @@ class Order extends Model
 
   public static function findByNameAndCode($name, $code)
   {
-    return DB::table('orders')
-      ->where('customer_name', '=', $name)
+    return self::where('customer_name', '=', $name)
       ->where('payment_reference_code', '=', $code)
       ->first();
   }
