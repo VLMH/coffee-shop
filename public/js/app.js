@@ -41776,7 +41776,7 @@ module.exports = Component.exports
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* WEBPACK VAR INJECTION */(function($) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
@@ -41861,14 +41861,23 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         }
       }).then(function (response) {
         console.log(response);
-        // var details = self.paymentDetails;
-        // details['customerName']['value'] = response.body
+
+        var details = self.paymentDetails;
+        details['customerName']['value'] = response.body.name;
+        details['tel']['value'] = response.body.tel;
+        details['currency']['value'] = response.body.currency.toUpperCase();
+        details['amount']['value'] = response.body.amount;
+        details['code']['value'] = response.body.code;
+
+        $('#paymentModal').modal();
       }, function (error) {
         console.error(error);
+        $('#notFoundModal').modal();
       });
     }
   }
 };
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(2)))
 
 /***/ }),
 /* 51 */
