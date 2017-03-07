@@ -15,12 +15,15 @@
    - `php vendor/bin/homestead make`
 5. Copy `.env` file
    - `cp .env.example .env`
+6. Generate key
+   - `php artisan key:generate`
 6. Start VM
    - `vagrant up`
 7. SSH to VM
    - `vagrant ssh`
 8. Create DB
    - `createdb -U homestead -h 127.0.0.1 -O homestead coffeeshop`
+   - password: `secret`
 9. Run migration
    - `cd ./Code/coffee-shop && php artisan migrate`
 10. Set `/etc/hosts`
