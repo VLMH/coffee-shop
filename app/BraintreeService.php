@@ -37,7 +37,8 @@ class BraintreeService
 
   public function getMerchantAccountId($currency)
   {
-    return 'vlmh' . ($currency == 'usd' ? '' : ('-'.$currency));
+    $curr = strtolower($currency);
+    return 'vlmh' . ($curr == 'usd' ? '' : ('-'.$curr));
   }
 
 }
