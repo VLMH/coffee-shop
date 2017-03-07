@@ -17,8 +17,8 @@ use PayPal\Api\Transaction;
 
 class PaypalService
 {
-    private $clientId = 'AV4HK9Fgz7JSQEqk4xyzCtE5rfGuq6vAomj8vUyFc-QFYducIq2CZ9cR7XjxrI-wAkFa2nlP3NE7VMMC';
-    private $clientSecret = 'EJcTCFFL47MA25cftbuVEpq-MchZ6hF5ZtypzAnaflUSrZ2ZFaRd_iO5lIrkCgRjvz6xcGyFnO5ZVBFP';
+    private $clientId = env('PAYPAL_CLIENT_ID', '');
+    private $clientSecret = env('PAYPAL_CLIENT_SECRET', '');
 
     public function getClientId() { return $this->clientId; }
 
