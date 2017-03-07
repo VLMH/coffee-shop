@@ -12172,19 +12172,20 @@ module.exports = function spread(callback) {
 
   methods: {
     onSubmit: function onSubmit() {
+      var self = this;
       var cardType = window.creditCardType(this.payment.cardNumber)[0];
       var paypalCurrencyList = ['usd', 'eur', 'aud'];
 
       if (typeof cardType == 'undefined') {
         console.error('unknown credit card type');
-        this.msgModalContent = { title: 'Error Message', body: 'Unknown credit card type' };
+        self.msgModalContent = { title: 'Error Message', body: 'Unknown credit card type' };
         $('#msgModal').modal();
         return;
       }
 
       if (cardType.type == 'american-express' && this.payment.currency != 'usd') {
         console.error('AMEX is only for USD');
-        this.msgModalContent = { title: 'Error Message', body: 'AMEX is only for USD' };
+        self.msgModalContent = { title: 'Error Message', body: 'AMEX is only for USD' };
         $('#msgModal').modal();
         return;
       }
@@ -12205,6 +12206,8 @@ module.exports = function spread(callback) {
         if (clientErr) {
           // Handle error in client creation
           console.error('client error', clientErr);
+          self.msgModalContent = { title: 'Error Message', body: 'Payment cannot be proceed' };
+          $('#msgModal').modal();
           return;
         }
 
@@ -12221,6 +12224,8 @@ module.exports = function spread(callback) {
         }, function (err, response) {
           if (err) {
             console.error(err);
+            self.msgModalContent = { title: 'Error Message', body: 'Payment cannot be proceed' };
+            $('#msgModal').modal();
             return;
           }
 
@@ -12241,6 +12246,8 @@ module.exports = function spread(callback) {
             $('#msgModal').modal();
           }, function (error) {
             console.error(error);
+            self.msgModalContent = { title: 'Error Message', body: 'Payment cannot be proceed' };
+            $('#msgModal').modal();
           });
         });
       });
@@ -12276,6 +12283,8 @@ module.exports = function spread(callback) {
         $('#msgModal').modal();
       }, function (error) {
         console.error(error);
+        self.msgModalContent = { title: 'Error Message', body: 'Payment cannot be proceed' };
+        $('#msgModal').modal();
       });
     }
   }
