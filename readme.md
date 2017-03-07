@@ -1,33 +1,33 @@
 # Requirement
 
-VirtualBox 5.1.x
-Vagrant >= 1.9.0
-PHP 5
-Composer
+- VirtualBox 5.1.x
+- Vagrant >= 1.9.0
+- PHP 5
+- Composer
 
 # Setup
 
 1. Pull source
-   `git clone git@github.com:VLMH/coffee-shop.git`
+   - `git clone git@github.com:VLMH/coffee-shop.git`
 2. Go to app folder
-   `cd coffee-shop`
+   - `cd coffee-shop`
 3. Install dependencies
-   `composer install`
+   - `composer install`
 4. Generate `Vagrantfile` and `Homestead.yaml`
-   `php vendor/bin/homestead make`
+   - `php vendor/bin/homestead make`
 5. Copy `.env` file
-   `cp .env.example .env`
-5. Start VM
-   `vagrant up`
-6. SSH to VM
-   `vagrant ssh`
-7. Create DB
-   `createdb -U homestead -h 127.0.0.1 -O homestead coffeeshop`
-8. Run migration
-   `cd ./Code/coffee-shop && php artisan migrate`
-9. Set `/etc/hosts`
-   `coffee-shop.app 192.168.10.10`
-10. Go to app http://coffee-shop.app
+   - `cp .env.example .env`
+6. Start VM
+   - `vagrant up`
+7. SSH to VM
+   - `vagrant ssh`
+8. Create DB
+   - `createdb -U homestead -h 127.0.0.1 -O homestead coffeeshop`
+9. Run migration
+   - `cd ./Code/coffee-shop && php artisan migrate`
+10. Set `/etc/hosts`
+   - `coffee-shop.app 192.168.10.10`
+11. Go to app http://coffee-shop.app
 
 # PayPal test credit card
 
