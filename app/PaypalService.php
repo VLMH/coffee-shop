@@ -17,8 +17,14 @@ use PayPal\Api\Transaction;
 
 class PaypalService
 {
-    private $clientId = env('PAYPAL_CLIENT_ID', '');
-    private $clientSecret = env('PAYPAL_CLIENT_SECRET', '');
+    private $clientId;
+    private $clientSecret;
+
+    public function __construct()
+    {
+        $this->clientId = env('PAYPAL_CLIENT_ID', '');
+        $this->clientSecret = env('PAYPAL_CLIENT_SECRET', '');
+    }
 
     public function getClientId() { return $this->clientId; }
 
