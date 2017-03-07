@@ -23,15 +23,21 @@ class BraintreeService
     return \Braintree\Transaction::find($id);
   }
 
-  public function createTransaction($nonce, $amount)
+  public function createTransaction($nonce, $amount, $currency)
   {
     return \Braintree\Transaction::sale([
       'amount' => $amount,
       'paymentMethodNonce' => $nonce,
+      'merchantAccountId' => $this->getMerchantAccountId($currency),
       'options' => [
         'submitForSettlement' => true
       ]
     ]);
+  }
+
+  public function getMerchantAccountId($currency)
+  {
+    return 'vlmh' . ($currency == 'usd' ? '' : ('-'.$currency));
   }
 
 }
