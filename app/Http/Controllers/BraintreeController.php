@@ -31,10 +31,12 @@ class BraintreeController extends Controller
 
     $result = (new BraintreeService())->createTransaction(
       $request->input('nonce'),
-      $request->input('amount')
+      $request->input('amount'),
+      $request->input('currency')
     );
 
     $payment->fill(['transaction_id' => $result->transaction->id])->save();
+    $order->fill(['payment_reference_code' => $result->transaction->id])->save();
 
     return response()->json([
       'transaction_id' => $result->transaction->id,
