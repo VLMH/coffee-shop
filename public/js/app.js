@@ -11198,6 +11198,7 @@ __webpack_require__(31);
  */
 
 Vue.component('payment-form', __webpack_require__(35));
+Vue.component('payment-search', __webpack_require__(49));
 
 var app = new Vue({
   el: '#app'
@@ -41727,6 +41728,328 @@ module.exports = function(module) {
 __webpack_require__(10);
 module.exports = __webpack_require__(11);
 
+
+/***/ }),
+/* 41 */,
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(36)(
+  /* script */
+  __webpack_require__(50),
+  /* template */
+  __webpack_require__(51),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "/Users/victor/Projects/WeMedia01/coffee-shop/resources/assets/js/components/payment-search.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] payment-search.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-5087e224", Component.options)
+  } else {
+    hotAPI.reload("data-v-5087e224", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 50 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = {
+  data: function data() {
+    return {
+      search: {
+        name: '',
+        code: ''
+      },
+      paymentDetails: {
+        customerName: { title: 'Customer Name', value: '' },
+        tel: { title: 'Tel', value: '' },
+        currency: { title: 'Currency', value: '' },
+        amount: { title: 'Price', value: '' },
+        code: { title: 'Payment Code', value: '' }
+      }
+    };
+  },
+
+  methods: {
+    onSubmit: function onSubmit() {
+      var self = this;
+
+      Vue.http.get('/payments/search', {
+        params: {
+          name: self.search['name'],
+          code: self.search['code']
+        }
+      }).then(function (response) {
+        console.log(response);
+        // var details = self.paymentDetails;
+        // details['customerName']['value'] = response.body
+      }, function (error) {
+        console.error(error);
+      });
+    }
+  }
+};
+
+/***/ }),
+/* 51 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "row"
+  }, [_c('div', {
+    staticClass: "col-md-6 col-md-offset-3"
+  }, [_c('form', {
+    staticClass: "form-inline",
+    on: {
+      "submit": function($event) {
+        $event.preventDefault();
+        _vm.onSubmit($event)
+      }
+    }
+  }, [_vm._m(0), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.search['name']),
+      expression: "search['name']"
+    }],
+    staticClass: "form-control input-lg",
+    attrs: {
+      "type": "text",
+      "id": "name",
+      "name": "name",
+      "placeholder": "Customer Name",
+      "required": ""
+    },
+    domProps: {
+      "value": (_vm.search['name'])
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        var $$exp = _vm.search,
+          $$idx = 'name';
+        if (!Array.isArray($$exp)) {
+          _vm.search['name'] = $event.target.value
+        } else {
+          $$exp.splice($$idx, 1, $event.target.value)
+        }
+      }
+    }
+  }), _vm._v(" "), _c('input', {
+    directives: [{
+      name: "model",
+      rawName: "v-model",
+      value: (_vm.search['code']),
+      expression: "search['code']"
+    }],
+    staticClass: "form-control input-lg",
+    attrs: {
+      "type": "text",
+      "id": "code",
+      "placeholder": "Payment Code",
+      "required": ""
+    },
+    domProps: {
+      "value": (_vm.search['code'])
+    },
+    on: {
+      "input": function($event) {
+        if ($event.target.composing) { return; }
+        var $$exp = _vm.search,
+          $$idx = 'code';
+        if (!Array.isArray($$exp)) {
+          _vm.search['code'] = $event.target.value
+        } else {
+          $$exp.splice($$idx, 1, $event.target.value)
+        }
+      }
+    }
+  }), _vm._v(" "), _c('button', {
+    staticClass: "btn btn-default btn-lg",
+    attrs: {
+      "type": "submit"
+    }
+  }, [_vm._v("Search")])])]), _vm._v(" "), _c('div', {
+    staticClass: "modal fade",
+    attrs: {
+      "id": "paymentModal",
+      "tabindex": "-1",
+      "role": "dialog"
+    }
+  }, [_c('div', {
+    staticClass: "modal-dialog",
+    attrs: {
+      "role": "document"
+    }
+  }, [_c('div', {
+    staticClass: "modal-content"
+  }, [_vm._m(1), _vm._v(" "), _c('div', {
+    staticClass: "modal-body"
+  }, [_c('dl', {
+    staticClass: "dl-horizontal"
+  }, _vm._l((_vm.paymentDetails), function(data, key) {
+    return _c('span', [_c('dt', [_vm._v(_vm._s(data['title']))]), _vm._v(" "), _c('dd', [_vm._v(_vm._s(data['value']))])])
+  }))]), _vm._v(" "), _vm._m(2)])])]), _vm._v(" "), _vm._m(3)])
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('h3', [_c('u', [_vm._v("Search")])])
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "modal-header"
+  }, [_c('button', {
+    staticClass: "close",
+    attrs: {
+      "type": "button",
+      "data-dismiss": "modal",
+      "aria-label": "Close"
+    }
+  }, [_c('span', {
+    attrs: {
+      "aria-hidden": "true"
+    }
+  }, [_vm._v("×")])]), _vm._v(" "), _c('h4', {
+    staticClass: "modal-title"
+  }, [_vm._v("Payment")])])
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "modal-footer"
+  }, [_c('button', {
+    staticClass: "btn btn-default",
+    attrs: {
+      "type": "button",
+      "data-dismiss": "modal"
+    }
+  }, [_vm._v("Close")])])
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "modal fade",
+    attrs: {
+      "id": "notFoundModal",
+      "tabindex": "-1",
+      "role": "dialog"
+    }
+  }, [_c('div', {
+    staticClass: "modal-dialog",
+    attrs: {
+      "role": "document"
+    }
+  }, [_c('div', {
+    staticClass: "modal-content"
+  }, [_c('div', {
+    staticClass: "modal-header"
+  }, [_c('button', {
+    staticClass: "close",
+    attrs: {
+      "type": "button",
+      "data-dismiss": "modal",
+      "aria-label": "Close"
+    }
+  }, [_c('span', {
+    attrs: {
+      "aria-hidden": "true"
+    }
+  }, [_vm._v("×")])]), _vm._v(" "), _c('h4', {
+    staticClass: "modal-title"
+  }, [_vm._v("Message")])]), _vm._v(" "), _c('div', {
+    staticClass: "modal-body"
+  }, [_c('p', [_vm._v("Record not found")])]), _vm._v(" "), _c('div', {
+    staticClass: "modal-footer"
+  }, [_c('button', {
+    staticClass: "btn btn-default",
+    attrs: {
+      "type": "button",
+      "data-dismiss": "modal"
+    }
+  }, [_vm._v("Close")])])])])])
+}]}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-5087e224", module.exports)
+  }
+}
 
 /***/ })
 /******/ ]);
