@@ -19,6 +19,14 @@ class BraintreeController extends Controller
 
   public function create(Request $request)
   {
+    $this->validate($request, [
+        'customerName' => 'required',
+        'tel'          => 'required',
+        'currency'     => 'required',
+        'amount'       => 'required',
+        'nonce'        => 'required',
+    ]);
+
     $order = Order::create([
       'customer_name' => $request->input('customerName'),
       'customer_tel'  => $request->input('tel'),

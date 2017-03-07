@@ -14,6 +14,20 @@ class PaypalController extends Controller
 {
   public function create(Request $request)
   {
+    $this->validate($request, [
+        'customerName' => 'required',
+        'tel'          => 'required',
+        'currency'     => 'required',
+        'amount'       => 'required',
+        'cardType'     => 'required',
+        'cardNumber'   => 'required',
+        'expMonth'     => 'required',
+        'expYear'      => 'required',
+        'cvv'          => 'required',
+        'firstName'    => 'required',
+        'lastName'     => 'required',
+    ]);
+
     $order = Order::create([
       'customer_name' => $request->input('customerName'),
       'customer_tel'  => $request->input('tel'),
