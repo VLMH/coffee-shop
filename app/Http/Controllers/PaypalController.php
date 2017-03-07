@@ -44,7 +44,6 @@ class PaypalController extends Controller
       return response()->json(['message' => $e->getMessage()], 400);
     }
 
-    $payment->fill(['transaction_id' => $ppPayment->getId()])->save();
     $order->fill(['payment_reference_code' => $ppPayment->getId()])->save();
 
     (new RedisPaymentCache())->set($order);
