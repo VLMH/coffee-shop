@@ -6,14 +6,27 @@ use Illuminate\Http\Request;
 
 use App\Http\Controllers\Controller;
 use App\PaypalService;
+use App\PaypalPayment;
+use App\Order;
 
 class PaypalController extends Controller
 {
   public function create(Request $request)
   {
+    $order = Order::create([
+      'customer_name' => $request->input('customerName'),
+      'customer_tel'  => $request->input('tel'),
+      'currency'      => $request->input('currency'),
+      'amount'        => $request->input('amount'),
+    ]);
+
+    $payment = PaypalPayment::create();
+
+    $payment->orders()->save($order);
+
     $paypalService = new PaypalService();
     $apiContext = $paypalService->getApiContext();
-    $payment = $paypalService->buildPayment(
+    $ppPayment = $paypalService->buildPayment(
       $this->getPayPalCardType($request->input('cardType')),
       $request->input('cardNumber'),
       $request->input('expMonth'),
@@ -25,12 +38,18 @@ class PaypalController extends Controller
       $request->input('amount')
     );
     try {
-      $payment->create($apiContext);
+      $ppPayment->create($apiContext);
     } catch (\Exception $e) {
       return response()->json(['message' => $e->getMessage()], 400);
     }
 
-    return response()->json(['transaction_id' => $payment->getId()]);
+    $payment->fill(['transaction_id' => $ppPayment->getId()])->save();
+    $order->fill(['payment_reference_code' => $ppPayment->getId()])->save();
+
+    return response()->json([
+      'transaction_id' => $ppPayment->getId(),
+      'order_id' => $order->id,
+    ]);
   }
 
   private function getPayPalCardType($cardType)
