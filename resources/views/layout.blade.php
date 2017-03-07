@@ -13,7 +13,10 @@
     </body>
 
     <script>
-        window.Laravel = { 'csrfToken': '{{ csrf_token() }}' }
+        window.Laravel = {
+            'csrfToken': '{{ csrf_token() }}',
+            'braintreeAuth': '{{ $braintreeAuth }}'
+        }
     </script>
     <script src="https://js.braintreegateway.com/web/3.9.0/js/client.min.js"></script>
     <script src="../js/app.js"></script>
