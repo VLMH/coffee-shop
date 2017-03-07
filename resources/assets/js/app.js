@@ -14,6 +14,7 @@ require('./bootstrap');
  */
 
 Vue.component('payment-form', require('./components/payment-form.vue'));
+Vue.component('payment-search', require('./components/payment-search.vue'));
 
 const app = new Vue({
     el: '#app'
