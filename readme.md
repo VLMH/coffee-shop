@@ -1,12 +1,10 @@
 # Requirement
-
 - VirtualBox 5.1.x
 - Vagrant >= 1.9.0
 - PHP 5
 - Composer
 
 # Setup
-
 1. Pull source
    - `git clone git@github.com:VLMH/coffee-shop.git`
 2. Go to app folder
@@ -30,17 +28,31 @@
 11. Go to app http://coffee-shop.app
 
 # PayPal test credit card
-
-- AMEX 347149799668709 04/2022
-- VISA 4032035073037590 04/2022
-- MASTERCARD 5110921578761093 04/2022
-- DISCOVER 6011869674198918 04/2022
+- AMEX `347149799668709` 04/2022
+- VISA `4032035073037590` 04/2022
+- MASTERCARD `5110921578761093` 04/2022
+- DISCOVER `6011869674198918` 04/2022
 
 
 # Braintree test credit card numbers
-
 https://developers.braintreepayments.com/reference/general/testing/php#credit-card-numbers
 
 # Testing
-
 Run test with `cd path/to/app && vendor/bin/phpunit tests`
+
+# Data structure
+- Order
+  - Saving order section info
+  - Saving payment reference code after payment succeeded
+  - polymophic associate with Paypal payment and Braintree payment
+- Paypal Payment
+  - Saving Paypal specific payment info
+  - p.s. currently no info is saved
+- Braintree Payment
+  - Saving Braintree specific payment info such as nonce
+
+# Cache
+- Order with payment reference code will be stored in Redis after payment succeeded
+- User can retrieve payment info with customer name and payment reference code
+- Cache will last for 5mins
+- When user retrieve payment info after cache expired, system will rebuild cache for the payment info
