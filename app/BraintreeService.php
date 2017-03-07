@@ -7,10 +7,10 @@ class BraintreeService
 
   public function __construct()
   {
-    \Braintree\Configuration::environment('sandbox');
-    \Braintree\Configuration::merchantId('m46jtcw8fbndch2g');
-    \Braintree\Configuration::publicKey('s5bd4z26pb48rq9k');
-    \Braintree\Configuration::privateKey('3562c27fdc7e55ebb1ba43233fecd9fd');
+    \Braintree\Configuration::environment(env('BRAINTREE_ENV', ''));
+    \Braintree\Configuration::merchantId(env('BRAINTREE_MERCHANT_ID', ''));
+    \Braintree\Configuration::publicKey(env('BRAINTREE_PUBLIC_KEY', ''));
+    \Braintree\Configuration::privateKey(env('BRAINTREE_PRIVATE_KEY', ''));
   }
 
   public function getClientToken()
